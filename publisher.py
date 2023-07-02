@@ -3,13 +3,15 @@ import time
 from constPS import *
 
 context = zmq.Context()
-s = context.socket(zmq.PUB)
-p = "tcp://" + HOST + ":" + PORT
-s.bind(p)
+pub_socket = context.socket(zmq.PUB)
+pub_socket.bind(f"tcp://{HOST}:{PUB_PORT}")
+
+rpc_socket = context.socket(zmq.REP)
+rpc_socket.bind(f"tcp://{HOST}:{RPC_PORT}")
 
 while True:
-    print("1. Enviar mensagem individual")
-    print("2. Enviar mensagem para tópico")
+    print("1. Enviar mensagem individual (RPC)")
+    print("2. Enviar mensagem para tópico (Pub-Sub)")
     choice = input("Escolha uma opção: ")
 
     if choice == "1":
@@ -17,18 +19,19 @@ while True:
         message = input("Digite a mensagem: ")
         topic = f"USER.{username}"
         msg = f"{topic} {message}"
-        s.send_string(msg)
+        rpc_socket.send_string(msg)
+        response = rpc_socket.recv_string()
+        print("Resposta do servidor (RPC):", response)
     elif choice == "2":
         topic = input("Digite o nome do tópico: ")
         message = input("Digite a mensagem: ")
         topic = f"TOPIC.{topic}"
         msg = f"{topic} {message}"
-        s.send_string(msg)
+        pub_socket.send_string(msg)
     else:
         print("Opção inválida. Tente novamente.")
 
-    time.sleep(5)
-
+    time.sleep(2)
 
 #import zmq, time
 #from constPS import * #-
