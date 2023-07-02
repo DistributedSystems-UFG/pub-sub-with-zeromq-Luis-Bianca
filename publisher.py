@@ -3,35 +3,28 @@ import time
 from constPS import *
 
 context = zmq.Context()
-pub_socket = context.socket(zmq.PUB)
-pub_socket.bind(f"tcp://{HOST}:{PUB_PORT}")
-
-rpc_socket = context.socket(zmq.REP)
-rpc_socket.bind(f"tcp://{HOST}:{RPC_PORT}")
+s = context.socket(zmq.PUB)
+p = "tcp://" + HOST + ":" + PORT
+s.bind(p)
 
 while True:
-    print("1. Enviar mensagem individual (RPC)")
-    print("2. Enviar mensagem para tópico (Pub-Sub)")
-    choice = input("Escolha uma opção: ")
+    print("Escolha uma opção:")
+    print("1. Enviar mensagem individual")
+    print("2. Enviar mensagem para tópico")
+    option = input("Opção: ")
 
-    if choice == "1":
-        username = input("Digite o nome do usuário destinatário: ")
+    if option == "1":
+        recipient = input("Digite o nome do destinatário: ")
         message = input("Digite a mensagem: ")
-        topic = f"USER.{username}"
-        msg = f"{topic} {message}"
-        rpc_socket.send_string(msg)
-        response = rpc_socket.recv_string()
-        print("Resposta do servidor (RPC):", response)
-    elif choice == "2":
-        topic = input("Digite o nome do tópico: ")
+        msg = str.encode(f"RPC {recipient} {message}")
+        s.send(msg)
+    elif option == "2":
+        topic = input("Digite o tópico: ")
         message = input("Digite a mensagem: ")
-        topic = f"TOPIC.{topic}"
-        msg = f"{topic} {message}"
-        pub_socket.send_string(msg)
+        msg = str.encode(f"PUB {topic} {message}")
+        s.send(msg)
     else:
-        print("Opção inválida. Tente novamente.")
-
-    time.sleep(2)
+        print("Opção inválida. Por favor, tente novamente.")
 
 #import zmq, time
 #from constPS import * #-
