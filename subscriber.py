@@ -1,35 +1,37 @@
 import zmq
+import time
 from constPS import *
 
 context = zmq.Context()
-sub_socket = context.socket(zmq.SUB)
-sub_socket.connect(f"tcp://{HOST}:{PUB_PORT}")
-sub_socket.setsockopt_string(zmq.SUBSCRIBE, "")
+pub_socket = context.socket(zmq.PUB)
+pub_socket.bind(f"tcp://{HOST}:{PUB_PORT}")
 
-rpc_socket = context.socket(zmq.REQ)
-rpc_socket.connect(f"tcp://{HOST}:{RPC_PORT}")
+rpc_socket = context.socket(zmq.REP)
+rpc_socket.bind(f"tcp://{HOST}:{RPC_PORT}")
 
 while True:
-    print("1. Receber mensagens individuais (RPC)")
-    print("2. Receber mensagens de um tópico (Pub-Sub)")
+    print("1. Enviar mensagem individual (RPC)")
+    print("2. Enviar mensagem para tópico (Pub-Sub)")
     choice = input("Escolha uma opção: ")
 
     if choice == "1":
-        username = input("Digite o nome do seu usuário: ")
-        topic = f"USER.{username}"
+        username = input("Digite o nome do usuário destinatário: ")
         message = input("Digite a mensagem: ")
+        topic = f"USER.{username}"
         msg = f"{topic} {message}"
         rpc_socket.send_string(msg)
         response = rpc_socket.recv_string()
         print("Resposta do servidor (RPC):", response)
     elif choice == "2":
         topic = input("Digite o nome do tópico: ")
+        message = input("Digite a mensagem: ")
         topic = f"TOPIC.{topic}"
-        while True:
-            message = sub_socket.recv_string()
-            print(f"Mensagem de tópico recebida: {message}")
+        msg = f"{topic} {message}"
+        pub_socket.send_string(msg)
     else:
         print("Opção inválida. Tente novamente.")
+
+    time.sleep(2)
 
 
 #import zmq
