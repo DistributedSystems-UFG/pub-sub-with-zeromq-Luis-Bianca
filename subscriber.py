@@ -6,23 +6,44 @@ s = context.socket(zmq.SUB)
 p = "tcp://" + HOST + ":" + PORT
 s.connect(p)
 
-print("Escolha uma opção:")
-print("1. Receber mensagens individuais")
-print("2. Receber mensagens de tópicos")
-option = input("Opção: ")
+def show_menu():
+    print("Escolha uma opção:")
+    print("1. Receber mensagens individuais")
+    print("2. Receber mensagens de tópicos")
+    print("3. Sair")
+    option = input("Opção: ")
+    return option
 
-if option == "1":
-    recipient = input("Digite o nome do destinatário: ")
-    s.setsockopt_string(zmq.SUBSCRIBE, f"RPC {recipient}")
-elif option == "2":
-    topic = input("Digite o tópico: ")
-    s.setsockopt_string(zmq.SUBSCRIBE, f"PUB {topic}")
-else:
-    print("Opção inválida. Por favor, tente novamente.")
+while True:
+    option = show_menu()
 
-for i in range(5):
-    message = s.recv()
-    print(bytes.decode(message))
+    if option == "1":
+        recipient = input("Digite o nome do destinatário: ")
+        subscription = f"RPC {recipient}"
+        s.setsockopt_string(zmq.SUBSCRIBE, subscription)
+    elif option == "2":
+        topic = input("Digite o tópico: ")
+        subscription = f"PUB {topic}"
+        s.setsockopt_string(zmq.SUBSCRIBE, subscription)
+    elif option == "3":
+        break
+    else:
+        print("Opção inválida. Por favor, tente novamente.")
+        continue
+
+    while True:
+        message = s.recv()
+        print(bytes.decode(message))
+
+        # Verifica se o usuário deseja desconectar
+        disconnect = input("Digite 'sair' para desconectar ou pressione Enter para continuar: ")
+        if disconnect.lower() == "sair":
+            # Remove a assinatura para desconectar do canal atual
+            s.setsockopt_string(zmq.UNSUBSCRIBE, subscription)
+            break
+
+# Volta ao menu principal ou realiza outras operações
+# ...
 
 
 #import zmq
