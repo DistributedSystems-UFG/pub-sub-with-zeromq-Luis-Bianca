@@ -11,6 +11,7 @@ while True:
     print("Escolha uma opção:")
     print("1. Enviar mensagem individual")
     print("2. Enviar mensagem para tópico")
+    print("3. Sair")
     option = input("Opção: ")
 
     if option == "1":
@@ -23,6 +24,8 @@ while True:
         message = input("Digite a mensagem: ")
         msg = str.encode(f"PUB {topic} {message}")
         s.send(msg)
+    elif option == "3":
+    break
     else:
         print("Opção inválida. Por favor, tente novamente.")
 
