@@ -25,7 +25,7 @@ while True:
         msg = str.encode(f"PUB {topic} {message}")
         s.send(msg)
     elif option == "3":
-    break
+        break
     else:
         print("Opção inválida. Por favor, tente novamente.")
 
